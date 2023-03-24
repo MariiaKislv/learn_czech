@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class='row'>
+		<div class='col-8'>
+			{% with messages = get_flashed_messages() %}
+				{% if messages %}
+				<div class="alert alert-warning" role="alert">
+					{% for message in messages %}
+						{{ message }}<br>
+					{% endfor %}
+				</div>
+				{% endif %}
+			{% endwith %}
+			<h2>Слова</h2>
+			{% for words in words_list %}
+			<p><a href="/learning?w_id={{ words.id }}">
+				{{ words.word_ru }}</a></p>
+			<p>{{ words.word_cz }}</p>
+			<hr />
+			{% endfor%}
+		</div>
+	</div>
+{% endblock %}

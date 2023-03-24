@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class='row'>
+		<div class='col-8'>
+			{% with messages = get_flashed_messages() %}
+				{% if messages %}
+				<div class="alert alert-warning" role="alert">
+					{% for message in messages %}
+						{{ message }}<br>
+					{% endfor %}
+				</div>
+				{% endif %}
+			{% endwith %}
+			<p>{{ current_word.word_ru }}</p>
+				{% for word in words_for_choose %}
+				<p>
+					<a href="/result?q={{ current_word.id }}&answer={{ word.id }}">
+						{{ word.word_cz }}</a></p>
+				{% endfor%}
+			<hr />
+		</div>
+	</div>
+{% endblock %}

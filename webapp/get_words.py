@@ -1,6 +1,7 @@
 import csv
 
-from webapp.model import db, Words
+from webapp.db import db
+from webapp.word.models import Words
 
 def get_word():
     with open('words.csv', 'r', encoding='utf-8') as f:
