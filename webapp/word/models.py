@@ -1,4 +1,5 @@
 from webapp.db import db
+from webapp.user.models import User
 
 class Word(db.Model):
     __tablename__ = 'words'
@@ -17,6 +18,7 @@ class Answer(db.Model):
     word_id = db.Column(db.Integer, db.ForeignKey(Word.id), index=True, nullable=False)
     is_correct_answer = db.Column(db.Boolean, nullable=False)
     answered_at = db.Column(db.DateTime, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), index=True, nullable=True)
       
     def __repr__(self):
         return '<Answer {} {}>'.format(self.word_id, self.is_correct_answer)

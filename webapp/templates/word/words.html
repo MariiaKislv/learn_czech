@@ -2,21 +2,21 @@
 
 {% block content %}
 	<div class='row'>
-		<div class='col-8'>
-			{% with messages = get_flashed_messages() %}
-				{% if messages %}
-				<div class="alert alert-warning" role="alert">
-					{% for message in messages %}
-						{{ message }}<br>
-					{% endfor %}
-				</div>
-				{% endif %}
-			{% endwith %}
-			<h2>Слова</h2>
-			{% for words in words_list %}
-			<p><a href="/learning?w_id={{ words.id }}">
-				{{ words.word_ru }}</a></p>
-			<p>{{ words.word_cz }}</p>
+		<div class='col-6'>
+			<h2>Слова для повторения</h2>
+			{% for word in wrong_words %}
+			<p><a href="/words/learning?w_id={{ word.id }}">
+				{{ word.word_ru }}</a></p>
+			<p>{{ word.word_cz }}</p>
+			<hr />
+			{% endfor%}
+		</div>
+		<div class='col-6'>
+			<h2>Новые слова для изучения</h2>
+			{% for word in new_words %}
+			<p><a href="/words/learning?w_id={{ word.id }}">
+				{{ word.word_ru }}</a></p>
+			<p>{{ word.word_cz }}</p>
 			<hr />
 			{% endfor%}
 		</div>
