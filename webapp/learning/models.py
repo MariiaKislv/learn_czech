@@ -18,7 +18,8 @@ class Answer(db.Model):
     word_id = db.Column(db.Integer, db.ForeignKey(Word.id), index=True, nullable=False)
     is_correct_answer = db.Column(db.Boolean, nullable=False)
     answered_at = db.Column(db.DateTime, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id), index=True, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), index=True, nullable=False)
+    question_type = db.Column(db.String, nullable=False)
       
     def __repr__(self):
         return '<Answer {} {}>'.format(self.word_id, self.is_correct_answer)

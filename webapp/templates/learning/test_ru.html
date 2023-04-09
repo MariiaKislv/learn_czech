@@ -3,11 +3,11 @@
 {% block content %}
 	<div class='row'>
 		<div class='col-8'>
-			<p>{{ current_word.word_ru }}</p>
+			<p>{{ current_word.word_cz }}</p>
 				{% for word in words_for_choose %}
 				<p>
-					<a href="/words/result?q={{ current_word.id }}&answer={{ word.id }}">
-						{{ word.word_cz }}</a></p>
+					<a href="/learning/result?qt=test_ru&id={{ current_word.id }}&answer={{ word.id }}">
+						{{ word.word_ru }}</a></p>
 				{% endfor%}
 			<hr />
 		</div>

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class='row'>
+		<div class='col-8'>
+			<p>{{ current_word.word_ru }}</p>
+			<form action="{{ url_for('learning.process_answer') }} " method="POST">
+				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    			<div class="form-group">
+        			{{ form.answer.label }}<br>
+					{{ form.answer() }}
+				</div>
+				{{ form.word_id }}
+				{{ form.submit }}
+			</form>
+		</div>
+	</div>
+{% endblock %}

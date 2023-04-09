@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class='row'>
+		<div class='col-8'>
+			<h2>Ответ</h2>
+			<p>{{ sentense }}</p>
+			{% if question_type == "test_cz" %}
+			<p><a href="/learning/test_cz">Следующее слово</a></p>
+			{% elif question_type == "test_ru" %}
+			<p><a href="/learning/test_ru">Следующее слово</a></p>
+			{% else %}
+			<p><a href="/learning/inputting">Следующее слово</a></p>
+			{% endif %}
+			<p><a href="/learning/">К списку слов</a></p>
+			<hr />
+		</div>
+	</div>
+{% endblock %}
