@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app
-from flask_login import  current_user
+from flask_login import  current_user, login_required
 import random
 from sqlalchemy import func, and_
 
@@ -10,6 +10,7 @@ from webapp.learning.models import Word, Answer
 
 blueprint = Blueprint('learning', __name__, url_prefix='/learning')
 
+@login_required
 @blueprint.route('/')
 def words():
     title = 'Список слов'
@@ -28,8 +29,6 @@ def words():
 def test_cz():
     """ Перевод с русского на чешский """
 
-    if not current_user.is_authenticated:
-        return redirect(url_for('user.login'))
     title = 'Выберите верный перевод слова'
     word_id = request.args.get('w_id')
     wrong_words = db.session.query(Word).join(Answer, Word.id == Answer.word_id
@@ -56,8 +55,6 @@ def test_cz():
 def test_ru():
     """ Перевод с чешского на русский """
 
-    if not current_user.is_authenticated:
-        return redirect(url_for('user.login'))
     title = 'Выберите верный перевод слова'
     word_id = request.args.get('w_id')
     wrong_words = db.session.query(Word).join(Answer, Word.id == Answer.word_id
@@ -84,8 +81,6 @@ def test_ru():
 def inputting_word():
     """ Правописание слова на чешском """
 
-    if not current_user.is_authenticated:
-        return redirect(url_for('user.login'))
     title = 'Введите слово'
     word_id = request.args.get('w_id')
     words_for_inputting = db.session.query(Word).join(Answer, Word.id == Answer.word_id
@@ -112,15 +107,10 @@ def process_answer():
             new_word = form.answer.data
             word_id = int(form.word_id.data)
             is_correct = new_word == Word.query.get(word_id).word_cz
-            if is_correct:
-                sentense = 'Верно'
-                new_answer = Answer(word_id=word_id, is_correct_answer=True, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
-            else:
-                sentense = 'Ошибка'
-                new_answer = Answer(word_id=word_id, is_correct_answer=False, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
+            new_answer = Answer(word_id=word_id, is_correct_answer=is_correct, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
             db.session.add(new_answer)
             db.session.commit()
-            return render_template('learning/result.html', sentense=sentense, is_correct=is_correct, question_type=question_type)
+            return render_template('learning/result.html', is_correct=is_correct, question_type=question_type)
     else:
         for field, errors in form.errors.items():
              for error in errors:
@@ -132,18 +122,12 @@ def process_answer():
 
 @blueprint.route('/result')
 def answer():
-    if not current_user.is_authenticated:
-        return redirect(url_for('user.login'))
+
     result = request.args.get('id')
     answer_word = request.args.get('answer')
     question_type = request.args.get('qt')
     is_correct = answer_word == result
-    if is_correct:
-        sentense = 'Верно'
-        new_answer = Answer(word_id=result, is_correct_answer=True, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
-    else:
-        sentense = 'Ошибка'
-        new_answer = Answer(word_id=result, is_correct_answer=False, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
+    new_answer = Answer(word_id=result, is_correct_answer=is_correct, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
     db.session.add(new_answer)
     db.session.commit()
-    return render_template('learning/result.html', sentense=sentense, is_correct=is_correct, question_type=question_type)
+    return render_template('learning/result.html', is_correct=is_correct, question_type=question_type)

@@ -8,6 +8,7 @@ from webapp.db import db
 from webapp.user.models import User
 from webapp.user.views import blueprint as user_blueprint
 from webapp.learning.views import blueprint as learning_blueprint
+from webapp.lesson.views import blueprint as lesson_blueprint
 
 def create_app():
 	app = Flask(__name__)
@@ -22,6 +23,7 @@ def create_app():
 	login_manager.login_view = 'user.login'
 
 	app.register_blueprint(learning_blueprint)
+	app.register_blueprint(lesson_blueprint)
 	app.register_blueprint(user_blueprint)
 
 	@app.route('/')
