@@ -1,15 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<div class='row'>
+	<div class="row justify-content-center mt-5">
+		<div class="col-6">
+			<div class="card">
+				<div class="card-body">
+					<h3 class="card-title text-center">{{ current_word.word_ru }}</h3>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class='row justify-content-center mt-3'>
 		<div class='col-8'>
-			<p>{{ current_word.word_ru }}</p>
-				{% for word in words_for_choose %}
-				<p>
-					<a href="/learning/result?qt=test_cz&id={{ current_word.id }}&answer={{ word.id }}">
-						{{ word.word_cz }}</a></p>
-				{% endfor %}
-			<hr />
+			<div class='row'>
+			{% for word in words_for_choose %}
+			<div class='col-6 mt-2'>
+				<a class="btn btn-primary btn-block" href="/learning/result?qt=test_cz&id={{ current_word.id }}&answer={{ word.id }}" role="button">
+					{{ word.word_cz }}
+				</a>
+			</div>
+			{% endfor %}
+			</div>
 		</div>
 	</div>
 {% endblock %}

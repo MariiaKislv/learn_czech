@@ -4,31 +4,78 @@
 	<div class='row'>
 		<div class='col-4'>
 			<h2>Слова для повторения</h2>
-			{% for word in wrong_words %}
-			<p><a href="/learning/test_cz?w_id={{ word.id }}">
-				{{ word.word_ru }}</a></p>
-			<p><a href="/learning/test_ru?w_id={{ word.id }}">
-				{{ word.word_cz }}</a></p>
-			<hr />
-			{% endfor%}
+			<table class="table table-bordered">
+				<thead>
+				  <tr>
+					<th scope="col">Чешское слово</th>
+					<th scope="col">Русское слово</th>
+				  </tr>
+				</thead>
+				<tbody>
+					{% for word in wrong_words %}
+					<tr>
+						<td>
+							<a href="/learning/test_cz?w_id={{ word.id }}">
+								{{ word.word_ru }}
+							</a>
+						</td>
+						<td>
+							<a href="/learning/test_ru?w_id={{ word.id }}">
+							{{ word.word_cz }}
+							</a>
+						</td>
+					</tr>
+					{% endfor%}
+				</tbody>
+			</table>
 		</div>
 		<div class='col-4'>
 			<h2>Изучение правописания слов</h2>
-			{% for word in words_for_inputting %}
-			<p><a href="/learning/inputting?w_id={{ word.id }}">
-				{{ word.word_ru }}</a></p>
-			<hr />
-			{% endfor%}
+			<table class="table table-bordered">
+				<thead>
+				  <tr>
+					<th scope="col">Русское слово</th>
+				  </tr>
+				</thead>
+				<tbody>
+					{% for word in words_for_inputting %}
+					<tr>
+						<td>
+							<a href="/learning/inputting?w_id={{ word.id }}">
+							{{ word.word_ru }}
+							</a>
+						</td>
+					</tr>
+					{% endfor%}
+				</tbody>
+			</table>
 		</div>
 		<div class='col-4'>
 			<h2>Новые слова для изучения</h2>
-			{% for word in new_words %}
-			<p><a href="/learning/test_cz?w_id={{ word.id }}">
-				{{ word.word_ru }}</a></p>
-			<p><a href="/learning/test_ru?w_id={{ word.id }}">
-				{{ word.word_cz }}</a></p>
-			<hr />
-			{% endfor%}
+			<table class="table table-bordered">
+				<thead>
+				  <tr>
+					<th scope="col">Чешское слово</th>
+					<th scope="col">Русское слово</th>
+				  </tr>
+				</thead>
+				<tbody>
+					{% for word in new_words %}
+					<tr>
+						<td>
+							<a href="/learning/test_cz?w_id={{ word.id }}">
+								{{ word.word_ru }}
+							</a>
+						</td>
+						<td>
+							<a href="/learning/test_ru?w_id={{ word.id }}">
+							{{ word.word_cz }}
+							</a>
+						</td>
+					</tr>
+					{% endfor%}
+				</tbody>
+			</table>
 		</div>
 	</div>
 {% endblock %}

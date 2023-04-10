@@ -1,19 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<div class='row'>
+	<div class='row justify-content-center'>
 		<div class='col-8'>
-			<h2>Ответ</h2>
-			<p>{{ sentense }}</p>
-			{% if question_type == "test_cz" %}
-			<p><a href="/learning/test_cz">Следующее слово</a></p>
-			{% elif question_type == "test_ru" %}
-			<p><a href="/learning/test_ru">Следующее слово</a></p>
+			<h2 class="text-center">Ответ</h2>
+			{% if is_correct %}
+				<div class="alert alert-success" role="alert">
+					Верно!
+			  	</div>
 			{% else %}
-			<p><a href="/learning/inputting">Следующее слово</a></p>
+				<div class="alert alert-warning" role="alert">
+					Ошибка!
+				</div>
 			{% endif %}
-			<p><a href="/learning/">К списку слов</a></p>
-			<hr />
+
+			<div class='row justify-content-center'>
+				<div class='col-4'>
+					{% if question_type == "test_cz" %}
+					<p><a href="/learning/test_cz">Следующее слово</a></p>
+					{% elif question_type == "test_ru" %}
+					<p><a href="/learning/test_ru">Следующее слово</a></p>
+					{% else %}
+					<p><a href="/learning/inputting">Следующее слово</a></p>
+					{% endif %}
+				</div>
+				<div class="col-4">
+					<p><a href="/learning/">К списку слов</a></p>
+				</div>
+			</div>
 		</div>
 	</div>
 {% endblock %}
