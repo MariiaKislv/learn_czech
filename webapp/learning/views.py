@@ -111,7 +111,8 @@ def process_answer():
     if form.validate_on_submit():
             new_word = form.answer.data
             word_id = int(form.word_id.data)
-            if new_word == Word.query.get(word_id).word_cz:
+            is_correct = new_word == Word.query.get(word_id).word_cz
+            if is_correct:
                 sentense = 'Верно'
                 new_answer = Answer(word_id=word_id, is_correct_answer=True, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
             else:
@@ -119,7 +120,7 @@ def process_answer():
                 new_answer = Answer(word_id=word_id, is_correct_answer=False, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
             db.session.add(new_answer)
             db.session.commit()
-            return render_template('learning/result.html', sentense=sentense, question_type=question_type)
+            return render_template('learning/result.html', sentense=sentense, is_correct=is_correct, question_type=question_type)
     else:
         for field, errors in form.errors.items():
              for error in errors:
@@ -136,7 +137,8 @@ def answer():
     result = request.args.get('id')
     answer_word = request.args.get('answer')
     question_type = request.args.get('qt')
-    if answer_word == result:
+    is_correct = answer_word == result
+    if is_correct:
         sentense = 'Верно'
         new_answer = Answer(word_id=result, is_correct_answer=True, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
     else:
@@ -144,4 +146,4 @@ def answer():
         new_answer = Answer(word_id=result, is_correct_answer=False, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
     db.session.add(new_answer)
     db.session.commit()
-    return render_template('learning/result.html', sentense=sentense, question_type=question_type)
+    return render_template('learning/result.html', sentense=sentense, is_correct=is_correct, question_type=question_type)

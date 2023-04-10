@@ -1,13 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<div class='row'>
+	<div class='row justify-content-center'>
 		<div class='col-8'>
-			<p>{{ current_word.word_ru }}</p>
-			<form action="{{ url_for('learning.process_answer') }} " method="POST">
+			<div class="row justify-content-center mt-5">
+				<div class="col-8">
+					<div class="card">
+						<div class="card-body">
+							<h3 class="card-title text-center">{{ current_word.word_ru }}</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-8 mt-3">
+			<form class="form-inline justify-content-center" action="{{ url_for('learning.process_answer') }} " method="POST">
 				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    			<div class="form-group">
-        			{{ form.answer.label }}<br>
+				<div class="form-group mb-3 my-1">
+					{{ form.answer.label }}
 					{{ form.answer() }}
 				</div>
 				{{ form.word_id }}
