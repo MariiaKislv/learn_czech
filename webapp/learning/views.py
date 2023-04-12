@@ -13,17 +13,8 @@ blueprint = Blueprint('learning', __name__, url_prefix='/learning')
 @login_required
 @blueprint.route('/')
 def words():
-    title = 'Список слов'
-    # Список слов с ошибками определенного пользователя за посление 30 дней
-    wrong_words = db.session.query(Word).join(Answer, Word.id == Answer.word_id
-                            ).filter(Answer.is_correct_answer == False).filter(datetime.now() - timedelta(days=30) < Answer.answered_at).filter(Answer.user_id == current_user.id).group_by(Answer.word_id)
-    #  Список слов, на которые не было ответов определенного аккаунта
-    new_words = Word.query.join(Answer, and_(Word.id == Answer.word_id, Answer.user_id == current_user.id), isouter=True).filter(Answer.word_id.is_(None)).group_by(Word.id).limit(50)
-    # Список слов, на которые определенный пользователь давал правильные ответы за последние 30 дней
-    words_for_inputting = db.session.query(Word).join(Answer, Word.id == Answer.word_id
-                            ).filter(Answer.is_correct_answer == True).filter(datetime.now() - timedelta(days=30) < Answer.answered_at).filter(Answer.user_id == current_user.id).group_by(Answer.word_id).all()
-    print(new_words)
-    return render_template('learning/words.html', page_title=title, wrong_words=wrong_words, new_words=new_words, words_for_inputting=words_for_inputting)
+    title = 'Обучение'
+    return render_template('learning/words.html')
     
 @blueprint.route('/test_cz')
 def test_cz():
@@ -110,8 +101,12 @@ def process_answer():
             new_answer = Answer(word_id=word_id, is_correct_answer=is_correct, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
             db.session.add(new_answer)
             db.session.commit()
-            return render_template('learning/result.html', is_correct=is_correct, question_type=question_type)
-    else:
+            if is_correct:
+                flash('Верно')
+            else:
+                flash ('Ошибка') 
+            return redirect(url_for('learning.inputting_word'))
+    else:  
         for field, errors in form.errors.items():
              for error in errors:
                 flash('Ошибка в поле "{}": - {}'.format(
@@ -130,4 +125,8 @@ def answer():
     new_answer = Answer(word_id=result, is_correct_answer=is_correct, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
     db.session.add(new_answer)
     db.session.commit()
-    return render_template('learning/result.html', is_correct=is_correct, question_type=question_type)
+    if is_correct:
+        flash('Верно')
+    else:
+        flash ('Ошибка') 
+    return redirect(url_for('learning.' + question_type))

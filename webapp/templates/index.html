@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<div class='row'>
+	<div class='row justify-content-center'>
 		<div class='col-8'>
 			{% with messages = get_flashed_messages() %}
 				{% if messages %}
@@ -12,9 +12,17 @@
 				</div>
 				{% endif %}
 			{% endwith %}
-				<h2> Добро пожаловать</h2>
-				<a href="/users/login">Логин</a>
-				<a href="/users/register">Регистрация</a>
+				<h2 class="text-center mt-5"> Добро пожаловать</h2>
+				<div class='col-12 mt-5'>
+					{% if current_user.is_authenticated %}
+					<a class="btn btn-primary btn-block" href="/learning" role="button">
+						Начать обучение
+					</a>
+					{% else %}
+					<a class="btn btn-primary btn-block" href="{{ url_for('user.login') }}" role="button">
+						Начать обучение
+					</a>
+					{% endif %}
 			<hr />
 		</div>
 	</div>
