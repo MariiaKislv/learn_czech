@@ -3,7 +3,7 @@ import unicodedata
 from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app
 from flask_login import  current_user, login_required
 import random
-from sqlalchemy import func, and_
+from sqlalchemy import func
 
 from webapp.db import db
 from webapp.learning.forms import AnswerForm
@@ -18,16 +18,18 @@ blueprint = Blueprint('learning', __name__, url_prefix='/learning')
 def words():
     title = 'Обучение'
     return render_template('learning/words.html', page_title=title)
-    
-@blueprint.route('/test_cz')
-def test_cz():
-    """ Перевод с русского на чешский """
 
+@blueprint.route('/test')
+def test():
+    """ Режим теста """
+
+    question_type = request.args.get('qt')
     title = 'Выберите верный перевод слова'
+    # Слова, в которых пользователь допустил ошибку за последние 30 дней
     wrong_words = db.session.query(Word).join(Answer, Word.id == Answer.word_id
                             ).filter(Answer.is_correct_answer == False).filter(datetime.now() - timedelta(days=30) < Answer.answered_at).filter(Answer.user_id == current_user.id).group_by(Answer.word_id).all()
     print(wrong_words)
-
+    
     if wrong_words is None:
         flash('Слов для повторения нет!')
         redirect(url_for('learning.words'))
@@ -42,42 +44,16 @@ def test_cz():
     print('translation ' + eng_translation)
     image_url = get_photo(eng_translation)
     print('url ' + image_url)
-    return render_template('learning/test_cz.html', page_title=title, image_url=image_url, words_for_choose=words_for_choose, current_word=current_word)
-
-@blueprint.route('/test_ru')
-def test_ru():
-    """ Перевод с чешского на русский """
-
-    title = 'Выберите верный перевод слова'
-    word_id = request.args.get('w_id')
-    wrong_words = db.session.query(Word).join(Answer, Word.id == Answer.word_id
-                            ).filter(Answer.is_correct_answer == False).filter(datetime.now() - timedelta(days=30) < Answer.answered_at).filter(Answer.user_id == current_user.id).group_by(Answer.word_id).all()
-    print(wrong_words)
-    
-    if wrong_words is None:
-        flash('Слов для повторения нет!')
-        redirect(url_for('learning.words'))
-
-    current_word = random.choice(wrong_words)
-    current_app.logger.info('Следующее слово из списка для повторения')
-
-    words_for_choose = Word.query.filter(Word.id != current_word.id).order_by(func.random()).limit(3).all()
-    words_for_choose.append(current_word)
-    random.shuffle(words_for_choose)
-    print('word ' + current_word.word_ru)
-    eng_translation = get_translation_for_word(current_word.word_ru)
-    print('translation ' + eng_translation)
-    image_url = get_photo(eng_translation)
-    print('url ' + image_url)
-    return render_template('learning/test_ru.html', page_title=title, image_url=image_url, words_for_choose=words_for_choose, current_word=current_word)
+    return render_template('learning/test.html', page_title=title, image_url=image_url, words_for_choose=words_for_choose, current_word=current_word, question_type=question_type)
 
 @blueprint.route('/inputting')
 def inputting_word():
-    """ Правописание слова на чешском """
+    """ Режим ввода """
 
     title = 'Введите слово'
+    # Слова, в которых пользователь допустил ошибку за последние 30 дней
     words_for_inputting = db.session.query(Word).join(Answer, Word.id == Answer.word_id
-                            ).filter(Answer.is_correct_answer == True).filter(datetime.now() - timedelta(days=30) < Answer.answered_at).filter(Answer.user_id == current_user.id).group_by(Answer.word_id).all()
+                            ).filter(Answer.is_correct_answer == False).filter(datetime.now() - timedelta(days=30) < Answer.answered_at).filter(Answer.user_id == current_user.id).group_by(Answer.word_id).all()
     
     if words_for_inputting is None:
         flash('Слов для повторения нет!')
@@ -109,7 +85,7 @@ def process_answer():
             if is_correct:
                 flash('Верно')
             else:
-                flash ('Ошибка') 
+                flash (f'Ошибка, правильный ответ: {Word.query.get(word_id).word_cz}') 
             return redirect(url_for('learning.inputting_word'))
     else:  
         for field, errors in form.errors.items():
@@ -133,5 +109,6 @@ def answer():
     if is_correct:
         flash('Верно')
     else:
-        flash ('Ошибка') 
-    return redirect(url_for('learning.' + question_type))
+        word = Word.query.get(result)
+        flash (f'Ошибка, правильный ответ: {word.word_cz if question_type == "test_cz" else word.word_ru}') 
+    return redirect(url_for('learning.test', question_type=question_type))

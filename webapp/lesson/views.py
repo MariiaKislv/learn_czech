@@ -16,7 +16,7 @@ blueprint = Blueprint('lesson', __name__, url_prefix='/lesson')
 @login_required
 @blueprint.route('/start_new_words')
 def lesson_start_new_words():
-
+    # Слова, которые данный пользователь еще не изучал
     new_words = Word.query.join(LessonWord, and_(Word.id == LessonWord.word_id, LessonWord.user_id == current_user.id), isouter=True).filter(LessonWord.word_id.is_(None)).limit(10)
     words_for_lesson = []
     for word in new_words:
@@ -28,9 +28,9 @@ def lesson_start_new_words():
 
 @blueprint.route('/start_repeating')
 def lesson_start_repeating():
-
+    # Слова, которые данный пользователь еще изучал, и в которых он допустил ошибки за последние 15 дней
     new_words = Word.query.join(LessonWord, Word.id == LessonWord.word_id).join(Answer, Word.id == Answer.word_id).filter(Answer.is_correct_answer == False
-                            ).filter(datetime.now() - timedelta(days = 5) < Answer.answered_at).filter(Answer.user_id == current_user.id).group_by(Answer.word_id).order_by(func.random()).limit(10)
+                            ).filter(datetime.now() - timedelta(days = 15) < Answer.answered_at).filter(Answer.user_id == current_user.id).group_by(Answer.word_id).order_by(func.random()).limit(10)
     words_for_lesson = []
     for word in new_words:
         words_for_lesson.append({'word_id': word.id, 'user_id': current_user.id, 'current_step': 1, 'updated_at': datetime.now()})
@@ -60,22 +60,18 @@ def lesson():
     image_url = get_photo(eng_translation)
     print('url ' + image_url)
 
-    if record.current_step == 1 or record.current_step == 2:
-        words_for_choose = Word.query.filter(Word.id != record.Word.id).order_by(func.random()).limit(3).all()
-        words_for_choose.append(record.Word)
-        random.shuffle(words_for_choose)
-
-        if record.current_step == 1:
-            return render_template('lesson/test_cz.html', page_title=title, image_url=image_url, words_for_choose=words_for_choose, current_word=current_word)
-        
-        if record.current_step == 2:
-            return render_template('lesson/test_ru.html', page_title=title, image_url=image_url, words_for_choose=words_for_choose, current_word=current_word)
-        
     if record.current_step == 3:
         form = AnswerForm()
         form.word_id.data = record.Word.id
         return render_template('lesson/inputting.html', current_word=current_word, image_url=image_url, record=record, form=form)
 
+    if record.current_step == 1 or record.current_step == 2:
+        words_for_choose = Word.query.filter(Word.id != record.Word.id).order_by(func.random()).limit(3).all()
+        words_for_choose.append(record.Word)
+        random.shuffle(words_for_choose)
+
+        return render_template('lesson/test.html', page_title=title, image_url=image_url, words_for_choose=words_for_choose, current_word=current_word, current_step=record.current_step)
+        
 @blueprint.route('/check_choose')
 def check_choose():
     result = request.args.get('id')
@@ -93,7 +89,9 @@ def check_choose():
         flash('Верно')
     else:
         current_app.logger.info('Ошибка.')
-        flash('Ошибка')
+        current_step = LessonWord.query.filter(LessonWord.word_id == result).first().current_step
+        word = Word.query.get(result)
+        flash(f'Ошибка, правильный ответ: {word.word_cz if current_step == 1 else word.word_ru}')
     return redirect(url_for('lesson.lesson'))
 
 @blueprint.route('/check-inputting', methods=['POST'])
@@ -114,7 +112,7 @@ def check_inputting():
                 db.session.commit()
                 flash('Верно')
             else:
-                flash('Ошибка')
+                flash(f'Ошибка, правильный ответ: {Word.query.get(word_id).word_cz}')
             return redirect(url_for('lesson.lesson'))
     else:
         for field, errors in form.errors.items():

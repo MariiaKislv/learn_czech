@@ -6,7 +6,8 @@
 			<div class="card">
 				<img class="card-img-top picture" src="{{image_url}}" alt="{{ current_word.word_ru }}">
 				<div class="card-body">
-					<h3 class="card-title text-center">{{ current_word.word_ru }}</h3>
+
+					<h3 class="card-title text-center">{{ current_word.word_ru if current_step == 1 else current_word.word_cz}}</h3>
 				</div>
 			</div>
 		</div>
@@ -16,8 +17,8 @@
 			<div class='row'>
 			{% for word in words_for_choose %}
 			<div class='col-6 mt-2'>
-				<a class="btn btn-primary btn-block" href="/lesson/check_choose?qt=test_cz&id={{ current_word.id }}&answer={{ word.id }}" role="button">
-					{{ word.word_cz }}
+				<a class="btn btn-primary btn-block" href="/lesson/check_choose?qt={{'test_cz' if current_step == 1 else 'test_ru'}}&id={{ current_word.id }}&answer={{ word.id }}" role="button">
+					{{ word.word_cz if current_step == 1 else word.word_ru }}
 				</a>
 			</div>
 			{% endfor %}
