@@ -11,9 +11,6 @@
     </ul>
     <ul class="navbar-nav">
         {% if current_user.is_authenticated %}
-          <li class="nav-item">
-            <span class="nav-link">Привет, {{ current_user.username }}!</span>
-          </li>
           {% if current_user.is_admin %}
           <li class="nav-item">
             <a href="{{ url_for('admin.admin_index') }}" class="nav-link">Админка</a>

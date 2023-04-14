@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import unicodedata
 from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app
 from flask_login import  current_user, login_required
 import random
@@ -8,6 +9,8 @@ from webapp.db import db
 from webapp.learning.forms import AnswerForm
 from webapp.learning.models import Word, Answer
 from webapp.lesson.models import LessonWord
+from webapp.lesson.photo import get_photo
+from webapp.lesson.translate_word import get_translation_for_word
 
 blueprint = Blueprint('lesson', __name__, url_prefix='/lesson')
 @login_required
@@ -51,21 +54,27 @@ def lesson():
     
     current_word = record.Word
 
+    print('word ' + current_word.word_ru)
+    eng_translation = get_translation_for_word(current_word.word_ru)
+    print('translation ' + eng_translation)
+    image_url = get_photo(eng_translation)
+    print('url ' + image_url)
+
     if record.current_step == 1 or record.current_step == 2:
         words_for_choose = Word.query.filter(Word.id != record.Word.id).order_by(func.random()).limit(3).all()
         words_for_choose.append(record.Word)
         random.shuffle(words_for_choose)
 
         if record.current_step == 1:
-            return render_template('lesson/test_cz.html', page_title=title, words_for_choose=words_for_choose, current_word=current_word)
+            return render_template('lesson/test_cz.html', page_title=title, image_url=image_url, words_for_choose=words_for_choose, current_word=current_word)
         
         if record.current_step == 2:
-            return render_template('lesson/test_ru.html', page_title=title, words_for_choose=words_for_choose, current_word=current_word)
+            return render_template('lesson/test_ru.html', page_title=title, image_url=image_url, words_for_choose=words_for_choose, current_word=current_word)
         
     if record.current_step == 3:
         form = AnswerForm()
         form.word_id.data = record.Word.id
-        return render_template('lesson/inputting.html', current_word=current_word, record=record, form=form)
+        return render_template('lesson/inputting.html', current_word=current_word, image_url=image_url, record=record, form=form)
 
 @blueprint.route('/check_choose')
 def check_choose():
@@ -95,7 +104,7 @@ def check_inputting():
     if form.validate_on_submit():
             new_word = form.answer.data
             word_id = int(form.word_id.data)
-            is_correct = new_word == Word.query.get(word_id).word_cz
+            is_correct = unicodedata.normalize('NFC', new_word.lower()) == unicodedata.normalize('NFC', Word.query.get(word_id).word_cz)
             new_answer = Answer(word_id=word_id, is_correct_answer=is_correct, answered_at=datetime.now(), user_id=current_user.id, question_type=question_type)
             db.session.add(new_answer)
             db.session.commit()
